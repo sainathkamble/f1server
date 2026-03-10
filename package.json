@@ -7,7 +7,7 @@
     "author":"Sainath Kamble",
     "scripts": {
       "dev": "nodemon --env-file=.env src/index.js",
-      "start": "node --env-file=.env src/index.js",
+      "start": "node src/index.js",
       "build": "node --env-file=.env src/index.js"
     },
     "devDependencies":{
