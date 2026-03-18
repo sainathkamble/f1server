@@ -15,9 +15,10 @@ const connectRedis = async () => {
     await redisClient.connect();
     await redisSubscriber.connect();
     console.log("✅ Redis clients connected");
+    return true;
   } catch (err) {
     console.error("❌ Redis connection failed:", err);
-    process.exit(1);
+    return false;
   }
 };
 

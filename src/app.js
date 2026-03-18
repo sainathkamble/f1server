@@ -28,7 +28,11 @@ app.use("/v1", constructorsRoute);
 app.use("/v1", scheduleRoute);
 
 export async function startHttpServer() {
-  await connectRedis();
+  const redisOk = await connectRedis();
+  if (!redisOk) {
+    console.warn("⚠️ Redis is unavailable. Websocket live events will not stream, but API routes still run.");
+  }
+
   initWebSocket(httpServer); // ← pass httpServer, NOT app
 
   const port = process.env.PORT || 8000;
