@@ -148,28 +148,34 @@ npm start
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
+| `GET` | `/v1/auth/session` | ✅ | Check wether user has valid with access_token in cookie |
 | `POST` | `/v1/auth/register` | ❌ | Register a new user |
 | `POST` | `/v1/auth/login` | ❌ | Login — sets HTTP-only cookie with JWT |
 | `POST` | `/v1/auth/logout` | ✅ | Logout — clears cookie |
 | `GET` | `/v1/auth/profile` | ✅ | Get logged-in user profile |
+| `POST` | `/v1/auth/profile/edit` | ✅ | Edit user profile |
 
 ### Drivers — `/v1`
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `GET` | `/v1/drivers` | ❌ | Get all current F1 drivers |
+| `GET` | `/v1/drivers` | ✅ | Get all current F1 drivers |
+| `GET` | `/v1/drivers/standings` | ✅ | Get driver's championship standings |
+| `GET` | `/v1/driver:driverId` | ✅ | Get driver details using driverID |
+| `GET` | `/v1/driver-map:season` | ✅ | Get all F1 driver in that specific season |
 
 ### Constructors — `/v1`
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `GET` | `/v1/constructors` | ❌ | Get all F1 constructors/teams |
+| `GET` | `/v1/constructors` | ✅ | Get all F1 constructors/teams |
+| `GET` | `/v1/constructors/standings` | ✅ | Get all F1 constructor's championship standings |
 
 ### Schedule — `/v1`
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `GET` | `/v1/schedule` | ❌ | Get the full F1 season race calendar |
+| `GET` | `/v1/schedule` | ✅ | Get the full F1 season race calendar |
 
 > ✅ = Requires valid JWT in `access_token` cookie
 
