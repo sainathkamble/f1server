@@ -23,32 +23,65 @@ export const LIVETIMING_TOPICS = [
   "TimingData",
 ];
 
+// function decompressMaybe(topic, data) {
+//   if (!topic || !topic.endsWith(".z") || typeof data !== "string") return Promise.resolve(data);
+
+//   return new Promise((resolve) => {
+//     const buf = Buffer.from(data, "base64");
+//     zlib.inflate(buf, (err, result) => {
+//       if (!err) {
+//         try {
+//           resolve(JSON.parse(result.toString()));
+//         } catch {
+//           resolve(data);
+//         }
+//         return;
+//       }
+
+//       zlib.inflateRaw(buf, (err2, result2) => {
+//         if (!err2) {
+//           try {
+//             resolve(JSON.parse(result2.toString()));
+//           } catch {
+//             resolve(data);
+//           }
+//           return;
+//         }
+
+//         resolve(data);
+//       });
+//     });
+//   });
+// }
+
 function decompressMaybe(topic, data) {
-  if (!topic || !topic.endsWith(".z") || typeof data !== "string") return Promise.resolve(data);
+  if (!topic || !topic.endsWith(".z") || typeof data !== "string") 
+    return Promise.resolve(data);
 
   return new Promise((resolve) => {
     const buf = Buffer.from(data, "base64");
-    zlib.inflate(buf, (err, result) => {
+
+    // F1 feed uses raw deflate — inflateRaw must go first
+    zlib.inflateRaw(buf, (err, result) => {
       if (!err) {
-        try {
-          resolve(JSON.parse(result.toString()));
-        } catch {
-          resolve(data);
-        }
-        return;
+        try { return resolve(JSON.parse(result.toString())); }
+        catch { return resolve(data); }
       }
 
-      zlib.inflateRaw(buf, (err2, result2) => {
+      zlib.inflate(buf, (err2, result2) => {
         if (!err2) {
-          try {
-            resolve(JSON.parse(result2.toString()));
-          } catch {
-            resolve(data);
-          }
-          return;
+          try { return resolve(JSON.parse(result2.toString())); }
+          catch { return resolve(data); }
         }
 
-        resolve(data);
+        zlib.gunzip(buf, (err3, result3) => {
+          if (!err3) {
+            try { return resolve(JSON.parse(result3.toString())); }
+            catch {}
+          }
+          console.error(`[decompress] All methods failed for topic: ${topic}`);
+          resolve(data);
+        });
       });
     });
   });
@@ -146,6 +179,7 @@ export async function startLiveTimingForwarder() {
       token,
       cookie,
       onTopic: async (topic, data, timestamp) => {
+        if (topic.endsWith(".z")) console.log(`[LiveTiming] ${topic} decoded type: ${typeof data}, isObject: ${typeof data === "object"}`);
         console.debug(`[LiveTiming] topic: ${topic}, dataType: ${typeof data}, dataLen: ${Array.isArray(data) ? data.length : data ? Object.keys(data).length : 0}`);
         const ts = timestamp || new Date().toISOString();
         await publishToChannel(CHANNELS.livetiming(topic), {

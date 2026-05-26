@@ -26,18 +26,10 @@ export const handleChannelMessage = (io, channel, rawMessage) => {
     return;
   }
 
-  // Room name matches what clients join on connect
   const resolvedRoom = room ?? `session:${sessionKey}`;
 
-  // How many clients are in this room right now
-  const clientCount = io.sockets.adapter.rooms.get(resolvedRoom)?.size ?? 0;
-
-  if (clientCount === 0) {
-    // Nobody listening — skip emit (poller will be stopped separately)
-    return;
-  }
-
+  // Remove the clientCount === 0 early return — just always emit
   io.to(resolvedRoom).emit(event, { data, timestamp, sessionKey });
 
-  console.log(`[WS] → ${event} to room "${resolvedRoom}" (${clientCount} clients)`);
+  console.log(`[WS] → ${event} to room "${resolvedRoom}"`);
 };
